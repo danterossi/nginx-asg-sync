@@ -14,6 +14,7 @@ upstreams:
     autoscaling_group: backend-group
     port: 80
     kind: http
+    max_conns: 30
 `)
 
 type testInput struct {
@@ -79,9 +80,15 @@ func getInvalidConfigInput() []*testInput {
 }
 
 func TestUnmarshalConfig(t *testing.T) {
-	_, err := unmarshalConfig(validYaml)
+	cfg, err := unmarshalConfig(validYaml)
 	if err != nil {
 		t.Errorf("unmarshalConfig() failed for the valid yaml: %v", err)
+	}
+	if cfg.Upstreams[0].MaxConns != 0 {
+		t.Errorf("unmarshalConfig() failed to read maxconns: %d", cfg.Upstreams[0].MaxConns)
+	}
+	if cfg.Upstreams[1].MaxConns != 30 {
+		t.Errorf("unmarshalConfig() failed to read maxconns: %d", cfg.Upstreams[1].MaxConns)
 	}
 }
 
@@ -102,5 +109,19 @@ func TestValidateConfigValid(t *testing.T) {
 	err := validateConfig(cfg)
 	if err != nil {
 		t.Errorf("validateConfig() failed for the valid config: %v", err)
+	}
+}
+
+func TestExtraParams(t *testing.T) {
+	ups := upstream{
+		Name:             "backend1",
+		AutoscalingGroup: "backend-group",
+		Port:             80,
+		Kind:             "http",
+		MaxConns:         30,
+	}
+	extraParams := makeExtraParams(&ups)
+	if extraParams != "&max_conns=30" {
+		t.Errorf("makeExtraParams() generated wrong params: %v", extraParams)
 	}
 }

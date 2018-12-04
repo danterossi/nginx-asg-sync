@@ -95,10 +95,16 @@ func main() {
 				var upsServers []UpstreamServer
 				for _, ip := range ips {
 					backend := fmt.Sprintf("%v:%v", ip, upstream.Port)
-					upsServers = append(upsServers, UpstreamServer{
+					newServer := UpstreamServer {
 						Server:   backend,
 						MaxFails: 1,
-					})
+					}
+
+					if upstream.MaxConns != 0 {
+						newServer.MaxConns = upstream.MaxConns
+					}
+
+					upsServers = append(upsServers, newServer)
 				}
 
 				added, removed, err := nginx.UpdateHTTPServers(upstream.Name, upsServers)
@@ -114,10 +120,16 @@ func main() {
 				var upsServers []StreamUpstreamServer
 				for _, ip := range ips {
 					backend := fmt.Sprintf("%v:%v", ip, upstream.Port)
-					upsServers = append(upsServers, StreamUpstreamServer{
+					newServer := StreamUpstreamServer{
 						Server:   backend,
 						MaxFails: 1,
-					})
+					}
+
+					if upstream.MaxConns != 0 {
+						newServer.MaxConns = upstream.MaxConns
+					}
+
+					upsServers = append(upsServers, newServer)
 				}
 
 				added, removed, err := nginx.UpdateStreamServers(upstream.Name, upsServers)

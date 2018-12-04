@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"time"
 
@@ -19,6 +20,7 @@ type upstream struct {
 	AutoscalingGroup string `yaml:"autoscaling_group"`
 	Port             int
 	Kind             string
+	MaxConns         int    `yaml:"max_conns"`
 }
 
 const errorMsgFormat = "The mandatory field %v is either empty or missing in the config file"
@@ -51,6 +53,18 @@ func unmarshalConfig(data []byte) (*config, error) {
 	}
 
 	return &cfg, nil
+}
+
+func makeIntParam(name string, value int) string {
+	return fmt.Sprintf("&%v=%d", name, value)
+}
+
+func makeExtraParams(ups *upstream) string {
+	var buffer bytes.Buffer
+	if ups.MaxConns != 0 {
+		buffer.WriteString(makeIntParam("max_conns", ups.MaxConns))
+	}
+	return buffer.String()
 }
 
 func validateConfig(cfg *config) error {

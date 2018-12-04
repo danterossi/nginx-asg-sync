@@ -29,6 +29,7 @@ type UpstreamServer struct {
 	MaxFails    int    `json:"max_fails"`
 	FailTimeout string `json:"fail_timeout,omitempty"`
 	SlowStart   string `json:"slow_start,omitempty"`
+	MaxConns    int    `json:"max_conns,omitempty"`
 }
 
 // StreamUpstreamServer lets you configure Stream upstreams.
@@ -38,6 +39,7 @@ type StreamUpstreamServer struct {
 	MaxFails    int    `json:"max_fails"`
 	FailTimeout string `json:"fail_timeout,omitempty"`
 	SlowStart   string `json:"slow_start,omitempty"`
+	MaxConns    int    `json:"max_conns,omitempty"`
 }
 
 type apiErrorResponse struct {
